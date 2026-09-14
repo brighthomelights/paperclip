@@ -3,7 +3,9 @@
 CreateOS sandbox provider for Paperclip. This package lives alongside Daytona
 and E2B, outside the root pnpm workspace, and uses CreateOS's public HTTP API.
 No CreateOS SDK dependency is required; the `tar` library handles local archives. The package has not been published as
-part of this change; use a local-path install for development.
+part of this change; use a local-path install for development. Its release
+manifest entry has `publishFromCi: false` until a maintainer bootstraps the first
+npm publish and enables CI publishing.
 
 ## Build and install locally
 
@@ -48,7 +50,10 @@ has no custom UI. Required fields:
   choices match `https://api.sb.createos.sh/v1/shapes` as of 2026-09-08.
 - `apiKey`: your CreateOS key. Paperclip saves pasted keys as company secrets;
   a resolved environment key takes precedence over the optional host fallback
-  `CREATEOS_API_KEY`.
+  `CREATEOS_API_KEY`. The host forwards this fallback only to the trusted
+  CreateOS package installed from the repository or bundled plugin catalog
+  (or from the first-party npm scope after publication). Other local plugin
+  paths must use an environment-configured key.
 
 Optional fields:
 
