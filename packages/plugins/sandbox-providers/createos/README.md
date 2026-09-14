@@ -22,9 +22,9 @@ pnpm build
 From the Paperclip checkout, with your instance running:
 
 ```sh
-pnpm paperclipai plugin install /absolute/path/to/paperclip/packages/plugins/sandbox-providers/createos
-pnpm paperclipai plugin list
-pnpm paperclipai plugin inspect paperclip.createos-sandbox-provider
+node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts plugin install /absolute/path/to/paperclip/packages/plugins/sandbox-providers/createos
+node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts plugin list
+node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts plugin inspect paperclip.createos-sandbox-provider
 ```
 
 Rebuild after source changes; local plugin output watching reloads the worker.
@@ -32,8 +32,8 @@ If the running worker still uses the previous build, explicitly reload it when
 no sandbox commands are active:
 
 ```sh
-pnpm paperclipai plugin disable paperclip.createos-sandbox-provider
-pnpm paperclipai plugin enable paperclip.createos-sandbox-provider
+node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts plugin disable paperclip.createos-sandbox-provider
+node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts plugin enable paperclip.createos-sandbox-provider
 ```
 
 The plugin uses the same package entrypoints and publish manifest helper as
