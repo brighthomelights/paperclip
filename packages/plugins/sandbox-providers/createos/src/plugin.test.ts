@@ -197,12 +197,12 @@ describe("CreateOS lifecycle", () => {
     fake.fetchMock.mockImplementation(async (url, init) => {
       if (String(url).endsWith("/sb_test") && (!init?.method || init.method === "GET")) {
         reads++;
-        return success({ id: "sb_test", status: reads === 1 ? "paused" : reads === 2 ? "resuming" : "running" });
+        return success({ id: "sb_test", status: reads <= 2 ? "paused" : reads === 3 ? "resuming" : "running" });
       }
       return normal(url, init);
     });
     await new CreateosClient(parseConfig(config)).transition("sb_test", "running", AbortSignal.timeout(5000));
-    expect(reads).toBe(3);
+    expect(reads).toBe(4);
     expect(fake.calls.filter((call) => call.path.endsWith("/resume"))).toHaveLength(1);
   });
 });

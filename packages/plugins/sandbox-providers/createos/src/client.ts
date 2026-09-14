@@ -122,9 +122,11 @@ export class CreateosClient {
           // A concurrent state transition is reconciled by reading its state.
           if (!(error instanceof CreateosApiError && error.status === 409)) throw error;
         }
-      } else if (!["creating", "pausing", "resuming"].includes(sandbox.status!)) {
+      } else if (!canSubmit && !["creating", "pausing", "resuming"].includes(sandbox.status!)) {
         throw new Error(`CreateOS sandbox did not reach ${desired}.`);
       }
+      // An accepted transition can remain in its previous state briefly.
+      // Poll under the same deadline without submitting the action twice.
       await delay(250, undefined, { signal });
     }
   }

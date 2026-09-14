@@ -23,5 +23,17 @@ export async function waitForRequest(apiUrl: string, signal: AbortSignal): Promi
     state.lastStarted = Date.now();
   });
   state.tail = turn;
-  await turn;
+  // A cancelled caller must not wait for every earlier queued request's slot.
+  // Keep its turn in the queue so the remaining requests still stay serialized.
+  let onAbort!: () => void;
+  const aborted = new Promise<never>((_resolve, reject) => {
+    onAbort = () => reject(signal.reason);
+    signal.addEventListener("abort", onAbort, { once: true });
+    if (signal.aborted) onAbort();
+  });
+  try {
+    await Promise.race([turn, aborted]);
+  } finally {
+    signal.removeEventListener("abort", onAbort);
+  }
 }
