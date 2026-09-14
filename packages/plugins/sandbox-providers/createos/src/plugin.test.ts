@@ -303,10 +303,25 @@ describe("CreateOS configuration", () => {
     expect(() => parseConfig({ ...config, apiUrl })).toThrow("API URL");
   });
 
-  it("supports a local fixture URL and a host-level API key fallback", () => {
+  it("supports explicitly configured fixture keys and an official-endpoint host fallback", () => {
     vi.stubEnv("CREATEOS_API_KEY", "fallback");
-    expect(new CreateosClient(parseConfig({ ...config, apiUrl: "http://127.0.0.1:3109", apiKey: undefined })).apiKey).toBe("fallback");
+    expect(new CreateosClient(parseConfig({ ...config, apiUrl: "http://127.0.0.1:3109" })).apiKey).toBe("test-secret");
+    expect(new CreateosClient(parseConfig({ ...config, apiUrl: "https://api.sb.createos.sh/v1/", apiKey: undefined })).apiKey).toBe("fallback");
     expect(new CreateosClient(parseConfig(config)).apiKey).toBe("test-secret");
+  });
+
+  it.each([
+    "https://custom.example.test",
+    "https://api.sb.createos.sh.attacker.test",
+    "https://api.sb.createos.sh:8443",
+    "http://127.0.0.1:3109",
+  ])("never sends the deployment fallback key to custom endpoint %s", async (apiUrl) => {
+    vi.stubEnv("CREATEOS_API_KEY", "host-secret");
+    const fake = provider();
+    await expect(createPlugin().definition.onEnvironmentAcquireLease!({
+      ...base, config: { ...config, apiUrl, apiKey: undefined }, runId: "run",
+    })).rejects.toThrow("require an explicit environment API key");
+    expect(fake.fetchMock).not.toHaveBeenCalled();
   });
 
   it.each([0, -1, NaN, 1.5, 86_400_001, "500"])("rejects invalid timeout %s", (timeoutMs) => {

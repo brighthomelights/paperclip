@@ -50,6 +50,9 @@ export function parseConfig(raw: Record<string, unknown>): CreateosConfig {
 }
 
 export function resolveApiKey(config: CreateosConfig): string {
+  if (!config.apiKey && config.apiUrl !== "https://api.sb.createos.sh") {
+    throw new Error("Custom CreateOS API endpoints require an explicit environment API key; the host fallback is only available for https://api.sb.createos.sh.");
+  }
   const key = config.apiKey ?? process.env.CREATEOS_API_KEY?.trim();
   if (!key || /[\r\n\0]/.test(key)) {
     throw new Error("CreateOS requires an API key in the environment config or CREATEOS_API_KEY.");
