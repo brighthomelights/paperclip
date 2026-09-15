@@ -18,7 +18,7 @@ export async function seedWorkspaceBootstrap(base, persistent = false) {
   const [company] = await api("/companies");
   assert.equal(company.name, "Workspace Recovery QA");
   const source = await mkdtemp(path.join(os.tmpdir(), "workspace-bootstrap-source-"));
-  const git = (...args) => execFileSync("/usr/bin/git", args, { cwd: source, stdio: "ignore" });
+  const git = (...args) => execFileSync(process.env.BOOTSTRAP_REAL_GIT || "/usr/bin/git", args, { cwd: source, stdio: "ignore" });
   git("init", "-b", "main");
   await writeFile(path.join(source, "README.md"), "Committed work\n");
   await writeFile(path.join(source, ".gitignore"), "private.secret\n");

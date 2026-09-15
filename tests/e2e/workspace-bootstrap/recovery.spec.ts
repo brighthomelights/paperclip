@@ -72,7 +72,7 @@ for (const persistent of [false, true]) {
       expect(await readFile(path.join(fixture.source, "README.md"), "utf8")).toBe("Existing uncommitted work\n");
     }
     await page.reload();
-    await expect(page.getByRole("button", { name: `Change status (current: ${persistent ? "Blocked" : "Done"})` }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: new RegExp(`^Change status \\(current: ${persistent ? "Blocked" : "Done"}`) }).first()).toBeVisible();
     await expect(page.getByText(/Agent resumes in/)).toHaveCount(0);
     await page.screenshot({ path: info.outputPath("settled-task.png"), fullPage: true });
   });
