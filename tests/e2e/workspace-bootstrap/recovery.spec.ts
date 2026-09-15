@@ -50,6 +50,8 @@ for (const persistent of [false, true]) {
     await expect(page.getByText(/Agent resumes in/)).toBeVisible();
     await page.screenshot({ path: info.outputPath("scheduled-retry.png"), fullPage: true });
     await expect.poll(async () => (await api(`/issues/${task.id}`)).status, { timeout: 150_000 }).toBe(persistent ? "blocked" : "done");
+    // The worker updates the task before its process exit is persisted.
+    await expect.poll(async () => (await runs()).filter((row: { status: string }) => ["running", "queued", "scheduled_retry"].includes(row.status)).length).toBe(0);
     const history = await runs();
     expect(history).toHaveLength(persistent ? 3 : 2);
     expect(history.filter((row: { status: string }) => row.status === "succeeded")).toHaveLength(persistent ? 0 : 1);
